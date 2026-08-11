@@ -9,7 +9,7 @@ import { Postgresql } from "@/components/ui/svgs/postgresql";
 export const DATA = {
   name: "GHENISSA Nabil",
   initials: "GN",
-  url: "",
+  url: "https://example.com",
   location: "Oran, Algeria",
   locationLink: "https://www.google.com/maps/search/?api=1&query=Oran%2C%20Algeria",
   description:
