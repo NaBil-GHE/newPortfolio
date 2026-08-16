@@ -7,6 +7,15 @@ import { Nodejs } from "@/components/ui/svgs/nodejs";
 import { Postgresql } from "@/components/ui/svgs/postgresql";
 import { Java } from "@/components/ui/svgs/java";
 import { Python } from "@/components/ui/svgs/python";
+import { Flutter } from "@/components/ui/svgs/flutter";
+import { Dart } from "@/components/ui/svgs/dart";
+import { C } from "@/components/ui/svgs/c";
+import { Cpp } from "@/components/ui/svgs/cpp";
+import { Git } from "@/components/ui/svgs/git";
+import { Html } from "@/components/ui/svgs/html";
+import { Css } from "@/components/ui/svgs/css";
+import { Prisma } from "@/components/ui/svgs/prisma";
+import { RestApi } from "@/components/ui/svgs/restApi";
 import type { ReactNode } from "react";
 
 type Project = {
@@ -37,22 +46,22 @@ export const DATA = {
     "Computer Science graduate and software developer focused on building modern web and mobile applications. I enjoy creating reliable software across frontend, backend, and database-driven systems, with a strong interest in APIs, scalable development workflows, and modern tools used in contemporary web and mobile development.",
   avatarUrl: "/me.png",
   skills: [
-    { name: "Flutter", icon: Icons.globe },
-    { name: "Dart", icon: Icons.globe },
+    { name: "Flutter", icon: Flutter },
+    { name: "Dart", icon: Dart },
     { name: "Node.js", icon: Nodejs },
     { name: "TypeScript", icon: Typescript },
     { name: "PostgreSQL", icon: Postgresql },
     { name: "Java", icon: Java },
-    { name: "C", icon: Icons.globe },
-    { name: "C++", icon: Icons.globe },
+    { name: "C", icon: C },
+    { name: "C++", icon: Cpp },
     { name: "Python", icon: Python },
     { name: "React", icon: ReactLight },
     { name: "Next.js", icon: NextjsIconDark },
-    { name: "HTML", icon: Icons.globe },
-    { name: "CSS", icon: Icons.globe },
-    { name: "Git", icon: Icons.github },
-    { name: "REST API", icon: Icons.globe },
-    { name: "Prisma", icon: Icons.globe },
+    { name: "HTML", icon: Html },
+    { name: "CSS", icon: Css },
+    { name: "Git", icon: Git },
+    { name: "REST API", icon: RestApi },
+    { name: "Prisma", icon: Prisma },
   ],
   navbar: [
     { href: "/", icon: HomeIcon, label: "Home" },
@@ -69,10 +78,10 @@ export const DATA = {
         navbar: true,
       },
 
-      LinkedIn: {
-        name: "LinkedIn",
-        url: "https://www.linkedin.com/in/your-linkedin-username",
-        icon: Icons.linkedin,
+      Facebook: {
+        name: "Facebook",
+        url: "https://www.facebook.com/nabil.ghenissa1",
+        icon: Icons.facebook,
         navbar: true,
       },
       email: {
