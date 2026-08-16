@@ -5,6 +5,23 @@ import { NextjsIconDark } from "@/components/ui/svgs/nextjsIconDark";
 import { Typescript } from "@/components/ui/svgs/typescript";
 import { Nodejs } from "@/components/ui/svgs/nodejs";
 import { Postgresql } from "@/components/ui/svgs/postgresql";
+import type { ReactNode } from "react";
+
+type Project = {
+  title: string;
+  href?: string;
+  dates: string;
+  active?: boolean;
+  description: string;
+  technologies: string[];
+  links?: {
+    type: string;
+    href: string;
+    icon: ReactNode;
+  }[];
+  image?: string;
+  video?: string;
+};
 
 export const DATA = {
   name: "GHENISSA Nabil",
@@ -87,7 +104,5 @@ export const DATA = {
       end: "2016",
     },
   ],
-  projects: [
-    
-  ],
+  projects: [] as Project[],
 } as const;
