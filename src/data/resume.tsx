@@ -5,6 +5,8 @@ import { NextjsIconDark } from "@/components/ui/svgs/nextjsIconDark";
 import { Typescript } from "@/components/ui/svgs/typescript";
 import { Nodejs } from "@/components/ui/svgs/nodejs";
 import { Postgresql } from "@/components/ui/svgs/postgresql";
+import { Java } from "@/components/ui/svgs/java";
+import { Python } from "@/components/ui/svgs/python";
 import type { ReactNode } from "react";
 
 type Project = {
@@ -35,23 +37,34 @@ export const DATA = {
     "Computer Science graduate and software developer focused on building modern web and mobile applications. I enjoy creating reliable software across frontend, backend, and database-driven systems, with a strong interest in APIs, scalable development workflows, and modern tools used in contemporary web and mobile development.",
   avatarUrl: "/me.png",
   skills: [
+    { name: "Flutter", icon: Icons.globe },
+    { name: "Dart", icon: Icons.globe },
+    { name: "Node.js", icon: Nodejs },
+    { name: "TypeScript", icon: Typescript },
+    { name: "PostgreSQL", icon: Postgresql },
+    { name: "Java", icon: Java },
+    { name: "C", icon: Icons.globe },
+    { name: "C++", icon: Icons.globe },
+    { name: "Python", icon: Python },
     { name: "React", icon: ReactLight },
     { name: "Next.js", icon: NextjsIconDark },
-    { name: "TypeScript", icon: Typescript },
-    { name: "Node.js", icon: Nodejs },
-    { name: "PostgreSQL", icon: Postgresql },
+    { name: "HTML", icon: Icons.globe },
+    { name: "CSS", icon: Icons.globe },
+    { name: "Git", icon: Icons.github },
+    { name: "REST API", icon: Icons.globe },
+    { name: "Prisma", icon: Icons.globe },
   ],
   navbar: [
     { href: "/", icon: HomeIcon, label: "Home" },
     { href: "/blog", icon: NotebookIcon, label: "Blog" },
   ],
   contact: {
-    email: "your-email@example.com",
-    tel: "+0000000000",
+    email: "ghenissanabil1@gmail.com",
+    tel: "+213674301607",
     social: {
       GitHub: {
         name: "GitHub",
-        url: "https://github.com/your-github-username",
+        url: "https://github.com/NaBil-GHE",
         icon: Icons.github,
         navbar: true,
       },
@@ -64,7 +77,7 @@ export const DATA = {
       },
       email: {
         name: "Send Email",
-        url: "mailto:your-email@example.com",
+        url: "mailto:ghenissanabil1@gmail.com",
         icon: Icons.email,
         navbar: false,
       },
