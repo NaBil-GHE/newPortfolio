@@ -8,6 +8,7 @@ import Markdown from "react-markdown";
 import ContactSection from "@/components/section/contact-section";
 import ProjectsSection from "@/components/section/projects-section";
 import { ArrowUpRight } from "lucide-react";
+import { Suspense } from "react";
 
 const BLUR_FADE_DELAY = 0.04;
 
@@ -119,9 +120,17 @@ export default function Page() {
         </div>
       </section>
       <section id="projects">
-        <BlurFade delay={BLUR_FADE_DELAY * 11}>
-          <ProjectsSection />
-        </BlurFade>
+        <Suspense
+          fallback={
+            <div className="text-sm text-muted-foreground text-center">
+              Loading projects...
+            </div>
+          }
+        >
+          <BlurFade delay={BLUR_FADE_DELAY * 11}>
+            <ProjectsSection />
+          </BlurFade>
+        </Suspense>
       </section>
       <section id="contact">
         <BlurFade delay={BLUR_FADE_DELAY * 16}>

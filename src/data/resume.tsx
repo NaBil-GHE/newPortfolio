@@ -16,23 +16,6 @@ import { Html } from "@/components/ui/svgs/html";
 import { Css } from "@/components/ui/svgs/css";
 import { Prisma } from "@/components/ui/svgs/prisma";
 import { RestApi } from "@/components/ui/svgs/restApi";
-import type { ReactNode } from "react";
-
-type Project = {
-  title: string;
-  href?: string;
-  dates: string;
-  active?: boolean;
-  description: string;
-  technologies: string[];
-  links?: {
-    type: string;
-    href: string;
-    icon: ReactNode;
-  }[];
-  image?: string;
-  video?: string;
-};
 
 export const DATA = {
   name: "GHENISSA Nabil",
@@ -110,5 +93,4 @@ export const DATA = {
       end: "Present",
     },
   ],
-  projects: [] as Project[],
 } as const;
