@@ -10,11 +10,32 @@ import ProjectsSection from "@/components/section/projects-section";
 import { ArrowUpRight } from "lucide-react";
 import { Suspense } from "react";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
+
 const BLUR_FADE_DELAY = 0.04;
 
 export default function Page() {
+  const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Nabil Ghenissa",
+    jobTitle: "Software Developer",
+    url: SITE_URL,
+    sameAs: [
+      "https://github.com/NaBil-GHE",
+      "https://www.linkedin.com/in/nabil-ghenissa",
+    ],
+  };
+
   return (
     <main className="min-h-dvh flex flex-col gap-14 relative">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(personJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <section id="hero">
         <div className="mx-auto w-full max-w-2xl space-y-8">
           <div className="gap-2 gap-y-6 flex flex-col md:flex-row justify-between">

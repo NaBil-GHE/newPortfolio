@@ -1,12 +1,20 @@
 import Navbar from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { DATA } from "@/data/resume";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nabill.tech";
+// TODO: Replace NEXT_PUBLIC_SITE_URL with your real production domain.
+
+const SITE_TITLE = "Nabil Ghenissa | Software Developer";
+const SITE_DESCRIPTION =
+  "Nabil Ghenissa is a Software Developer and Computer Science graduate from Algeria, focused on web, mobile, backend development, and distributed systems.";
+
+const ogImageExists = false;
 
 const geist = Geist({
   subsets: ["latin"],
@@ -21,19 +29,43 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(DATA.url),
-  title: {
-    default: DATA.name,
-    template: `%s | ${DATA.name}`,
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "Nabil Ghenissa",
+    "Nabil Ghenissa Algeria",
+    "Software Developer",
+    "Full Stack Developer",
+    "Web Developer",
+    "Mobile Developer",
+    "Flutter Developer",
+    "Node.js Developer",
+    "TypeScript Developer",
+    "React Developer",
+    "Next.js Developer",
+    "PostgreSQL",
+    "Prisma",
+    "REST API",
+    "Computer Science",
+    "Distributed Systems",
+    "Reseaux et Systemes Distribues",
+    "USTO-MB",
+  ],
+  alternates: {
+    canonical: "/",
   },
-  description: DATA.description,
+  authors: [{ name: "Nabil Ghenissa", url: "https://github.com/NaBil-GHE" }],
+  creator: "Nabil Ghenissa",
+  publisher: "Nabil Ghenissa",
   openGraph: {
-    title: `${DATA.name}`,
-    description: DATA.description,
-    url: DATA.url,
-    siteName: `${DATA.name}`,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: "Nabil Ghenissa",
     locale: "en_US",
     type: "website",
+    ...(ogImageExists ? { images: ["/og-image.png"] } : {}),
   },
   robots: {
     index: true,
@@ -47,12 +79,14 @@ export const metadata: Metadata = {
     },
   },
   twitter: {
-    title: `${DATA.name}`,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     card: "summary_large_image",
+    ...(ogImageExists ? { images: ["/og-image.png"] } : {}),
   },
-  verification: {
-    google: "",
-    yandex: "",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
   },
 };
 
