@@ -2,8 +2,9 @@
 
 import { MessageCircle, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { io } from "socket.io-client";
 import { Button } from "@/components/ui/button";
-import { ChatApiError, createConversation, getConversation, getMessages, sendMessage, type ChatMessage, type ConversationStatus } from "./chat-api";
+import { ChatApiError, createConversation, getConversation, getMessages, normalizeMessage, sendMessage, type ChatMessage, type ConversationStatus } from "./chat-api";
 import { ChatWindow } from "./chat-window";
 
 const TOKEN_KEY = "portfolio-live-chat-token";
@@ -31,10 +32,10 @@ export function LiveChat() {
     if (!isOpen) return;
     const previousToken = window.sessionStorage.getItem(TOKEN_KEY);
     let cancelled = false;
-    setIsLoading(true);
-    setError(undefined);
 
     const loadChat = async () => {
+      setIsLoading(true);
+      setError(undefined);
       try {
         const conversation = previousToken ? await getConversation(previousToken) : await createConversation();
         if (cancelled) return;
@@ -55,6 +56,33 @@ export function LiveChat() {
       cancelled = true;
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+    if (!isOpen || !token || isLoading || !apiUrl || status === "CLOSED" || status === "EXPIRED") return;
+
+    const socket = io(apiUrl, { withCredentials: true });
+    const handleMessage = (payload: unknown) => {
+      const message = normalizeMessage(payload);
+      if (!message.content || !message.id) return;
+      setMessages((current) =>
+        current.some((existing) => existing.id === message.id) ? current : [...current, message]
+      );
+    };
+
+    const handleConnect = () => {
+      socket.emit("conversation:join", token);
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("message:new", handleMessage);
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("message:new", handleMessage);
+      socket.disconnect();
+    };
+  }, [isOpen, isLoading, status, token]);
 
   useEffect(() => {
     if (!isOpen) return;

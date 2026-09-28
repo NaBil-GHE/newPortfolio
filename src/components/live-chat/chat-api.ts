@@ -101,10 +101,10 @@ const normalizeConversation = (value: unknown): Conversation => {
   };
 };
 
-const normalizeMessage = (value: unknown, index = 0): ChatMessage => {
+export const normalizeMessage = (value: unknown, index = 0): ChatMessage => {
   const record = getPayload(value);
   const content = getString(record, "content", "text", "body") || "";
-  const author = getString(record, "author", "role", "sender") || "SYSTEM";
+  const author = getString(record, "author", "role", "sender", "senderType") || "SYSTEM";
   return {
     id: getString(record, "id", "messageId", "message_id") || `${index}-${content}`,
     content,
