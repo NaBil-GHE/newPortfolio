@@ -1,28 +1,31 @@
-<div align="center">
-<img alt="Portfolio" src="https://github.com/dillionverma/portfolio/assets/16860528/57ffca81-3f0a-4425-b31d-094f61725455" width="90%">
-</div>
+# Nabil Ghenissa | Portfolio
 
-# Portfolio [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdillionverma%2Fportfolio)
+Personal portfolio and blog for **Nabil Ghenissa**, a computer science graduate and software developer based in Oran, Algeria.
 
-Built with next.js, [shadcn/ui](https://ui.shadcn.com/), and [magic ui](https://magicui.design/), deployed on Vercel.
+The site showcases my experience, education, projects, technical skills, and writing. It is built with Next.js and deployed on Vercel.
 
-# Features
+## Features
 
-- Setup only takes a few minutes by editing the [single config file](./src/data/resume.tsx)
-- Built using Next.js 14, React, Typescript, Shadcn/UI, TailwindCSS, Framer Motion, Magic UI
-- Includes a blog
-- Responsive for different devices
-- Optimized for Next.js and Vercel
+- Responsive portfolio and blog
+- Resume and portfolio content managed from [src/data/resume.tsx](./src/data/resume.tsx)
+- MDX-powered blog posts with syntax highlighting
+- Dark and light themes
+- Built with Next.js 16, React 19, TypeScript, Tailwind CSS, shadcn/ui, and Motion
 
-# Getting Started Locally
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18 or later
+- pnpm
 
 1. Clone this repository to your local machine:
 
    ```bash
-   git clone https://github.com/dillionverma/portfolio
+   git clone https://github.com/NaBil-GHE/portfolio.git
    ```
 
-2. Move to the cloned directory
+2. Move to the cloned directory:
 
    ```bash
    cd portfolio
@@ -34,14 +37,29 @@ Built with next.js, [shadcn/ui](https://ui.shadcn.com/), and [magic ui](https://
    pnpm install
    ```
 
-4. Start the local Server:
+4. Start the development server:
 
    ```bash
    pnpm dev
    ```
 
-5. Open the [Config file](./src/data/resume.tsx) and make changes
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-# License
+### Available scripts
 
-Licensed under the [MIT license](https://github.com/dillionverma/portfolio/blob/main/LICENSE.md).
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Start the development server |
+| `pnpm build` | Create a production build |
+| `pnpm start` | Start the production server |
+| `pnpm lint` | Run ESLint |
+
+## Contact
+
+- Email: [ghenissanabil1@gmail.com](mailto:ghenissanabil1@gmail.com)
+- GitHub: [NaBil-GHE](https://github.com/NaBil-GHE)
+- Facebook: [nabil.ghenissa1](https://www.facebook.com/nabil.ghenissa1)
+
+## License
+
+Licensed under the [MIT license](./LICENSE).

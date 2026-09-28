@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
+import { LiveChat } from "@/components/live-chat/live-chat";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nabill.tech";
 // TODO: Replace NEXT_PUBLIC_SITE_URL with your real production domain.
@@ -121,6 +122,7 @@ export default function RootLayout({
               {children}
             </div>
             <Navbar />
+            <LiveChat />
           </TooltipProvider>
         </ThemeProvider>
       </body>
