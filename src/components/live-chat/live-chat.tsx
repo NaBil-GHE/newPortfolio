@@ -8,6 +8,11 @@ import { ChatApiError, createConversation, getConversation, getMessages, normali
 import { ChatWindow } from "./chat-window";
 
 const TOKEN_KEY = "portfolio-live-chat-token";
+const isRealtimeDiagnosticsEnabled = process.env.NODE_ENV !== "production";
+
+const logRealtime = (event: string, details: Record<string, unknown> = {}) => {
+  if (isRealtimeDiagnosticsEnabled) console.debug(`[LiveChat] ${event}`, details);
+};
 
 const getErrorMessage = (error: unknown) => {
   if (!(error instanceof ChatApiError)) return "Chat is temporarily unavailable. Please try again later.";
@@ -61,9 +66,14 @@ export function LiveChat() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
     if (!isOpen || !token || isLoading || !apiUrl || status === "CLOSED" || status === "EXPIRED") return;
 
-    const socket = io(apiUrl, { withCredentials: true });
+    const socket = io(apiUrl, {
+      autoConnect: false,
+      reconnection: true,
+      withCredentials: true,
+    });
     const handleMessage = (payload: unknown) => {
       const message = normalizeMessage(payload);
+      logRealtime("message:new received", { messageId: message.id, publicToken: token });
       if (!message.content || !message.id) return;
       setMessages((current) =>
         current.some((existing) => existing.id === message.id) ? current : [...current, message]
@@ -71,14 +81,34 @@ export function LiveChat() {
     };
 
     const handleConnect = () => {
-      socket.emit("conversation:join", token);
+      logRealtime("socket connected", { publicToken: token });
+      logRealtime("join requested", { publicToken: token });
+      socket.emit("conversation:join", token, (acknowledgement: unknown) => {
+        const ackRecord = acknowledgement && typeof acknowledgement === "object"
+          ? acknowledgement as Record<string, unknown>
+          : undefined;
+        logRealtime("join acknowledgement status", {
+          publicToken: token,
+          status: typeof acknowledgement === "string"
+            ? acknowledgement
+            : ackRecord && typeof ackRecord.status === "string"
+              ? ackRecord.status
+              : acknowledgement === undefined
+                ? "received without status"
+                : "received",
+        });
+      });
     };
+    const handleDisconnect = () => logRealtime("socket disconnected", { publicToken: token });
 
     socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
     socket.on("message:new", handleMessage);
+    socket.connect();
 
     return () => {
       socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
       socket.off("message:new", handleMessage);
       socket.disconnect();
     };
@@ -101,7 +131,9 @@ export function LiveChat() {
     setError(undefined);
     try {
       const message = await sendMessage(token, content);
-      setMessages((current) => [...current, message]);
+      setMessages((current) =>
+        current.some((existing) => existing.id === message.id) ? current : [...current, message]
+      );
       setDraft("");
     } catch (sendError) {
       if (sendError instanceof ChatApiError && (sendError.status === 409 || sendError.status === 410)) {
