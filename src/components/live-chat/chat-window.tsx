@@ -34,7 +34,7 @@ export function ChatWindow({ messages, draft, status, error, isLoading, isSendin
       {error && <p className="border-b bg-destructive/10 px-4 py-2 text-xs text-destructive">{error}</p>}
       <ChatMessages messages={messages} isLoading={isLoading} />
       {isClosed && <p className="border-t bg-muted/50 px-4 py-3 text-center text-xs text-muted-foreground">{statusMessage}</p>}
-      <ChatInput value={draft} disabled={isClosed || Boolean(error && !status)} isSending={isSending} onChange={onDraftChange} onSend={onSend} />
+      <ChatInput value={draft} disabled={isClosed || isLoading || !status} isSending={isSending} onChange={onDraftChange} onSend={onSend} />
     </section>
   );
 }
