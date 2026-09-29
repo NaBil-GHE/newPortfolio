@@ -14,6 +14,9 @@ const logRealtime = (event: string, details: Record<string, unknown> = {}) => {
   if (isRealtimeDiagnosticsEnabled) console.debug(`[LiveChat] ${event}`, details);
 };
 
+const isAuthorizationError = (error: unknown) =>
+  error instanceof ChatApiError && [401, 403].includes(error.status);
+
 const getErrorMessage = (error: unknown) => {
   if (!(error instanceof ChatApiError)) return "Chat is temporarily unavailable. Please try again later.";
   if (error.code === "CONFIGURATION_ERROR" || error.code === "NETWORK_ERROR" || error.status === 0) return "Chat is temporarily unavailable. Please try again later.";
@@ -24,6 +27,7 @@ const getErrorMessage = (error: unknown) => {
 
 export function LiveChat() {
   const [isOpen, setIsOpen] = useState(false);
+  const [conversationAttempt, setConversationAttempt] = useState(0);
   const [token, setToken] = useState<string>();
   const [status, setStatus] = useState<ConversationStatus>();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -38,19 +42,56 @@ export function LiveChat() {
     const previousToken = window.sessionStorage.getItem(TOKEN_KEY);
     let cancelled = false;
 
+    logRealtime("conversation load state", {
+      hasSessionStorageToken: Boolean(previousToken),
+      conversationPublicTokenPresent: Boolean(previousToken),
+      conversationStatus: "unknown",
+    });
+
     const loadChat = async () => {
       setIsLoading(true);
       setError(undefined);
       try {
-        const conversation = previousToken ? await getConversation(previousToken) : await createConversation();
+        let conversation;
+        if (previousToken) {
+          try {
+            conversation = await getConversation(previousToken);
+          } catch (conversationError) {
+            const isStaleConversation = conversationError instanceof ChatApiError
+              && [401, 403, 404, 409, 410].includes(conversationError.status);
+            if (!isStaleConversation) throw conversationError;
+            window.sessionStorage.removeItem(TOKEN_KEY);
+            logRealtime("stale conversation discarded", {
+              hasSessionStorageToken: false,
+              conversationPublicTokenPresent: false,
+              conversationStatus: "unknown",
+            });
+            conversation = await createConversation();
+          }
+        } else {
+          conversation = await createConversation();
+        }
         if (cancelled) return;
         window.sessionStorage.setItem(TOKEN_KEY, conversation.publicToken);
         setToken(conversation.publicToken);
         setStatus(conversation.status);
+        logRealtime("conversation established", {
+          hasSessionStorageToken: true,
+          conversationPublicTokenPresent: true,
+          conversationStatus: conversation.status,
+        });
         const history = await getMessages(conversation.publicToken);
         if (!cancelled) setMessages(history);
       } catch (loadError) {
-        if (!cancelled) setError(getErrorMessage(loadError));
+        if (!cancelled && isAuthorizationError(loadError)) {
+          window.sessionStorage.removeItem(TOKEN_KEY);
+          setToken(undefined);
+          setStatus(undefined);
+          setMessages([]);
+          setConversationAttempt((attempt) => attempt + 1);
+        } else if (!cancelled) {
+          setError(getErrorMessage(loadError));
+        }
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -60,7 +101,7 @@ export function LiveChat() {
     return () => {
       cancelled = true;
     };
-  }, [isOpen]);
+  }, [conversationAttempt, isOpen]);
 
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
@@ -87,16 +128,28 @@ export function LiveChat() {
         const ackRecord = acknowledgement && typeof acknowledgement === "object"
           ? acknowledgement as Record<string, unknown>
           : undefined;
+        const ackStatus = typeof acknowledgement === "string"
+          ? acknowledgement.toLowerCase()
+          : ackRecord && typeof ackRecord.status === "string"
+            ? ackRecord.status.toLowerCase()
+            : "";
+        const ackError = ackRecord && [ackRecord.error, ackRecord.code, ackRecord.message]
+          .find((value) => typeof value === "string") as string | undefined;
+        const joinRejected = ackRecord?.success === false
+          || ackRecord?.ok === false
+          || ["error", "unauthorized", "forbidden", "rejected", "failed"].some((value) => ackStatus.includes(value))
+          || Boolean(ackError && /unauthori[sz]ed|forbidden|invalid|not found/i.test(ackError));
         logRealtime("join acknowledgement status", {
           publicToken: token,
-          status: typeof acknowledgement === "string"
-            ? acknowledgement
-            : ackRecord && typeof ackRecord.status === "string"
-              ? ackRecord.status
-              : acknowledgement === undefined
-                ? "received without status"
-                : "received",
+          status: joinRejected ? "rejected" : ackStatus || "accepted",
         });
+        if (!joinRejected) return;
+        socket.disconnect();
+        window.sessionStorage.removeItem(TOKEN_KEY);
+        setToken(undefined);
+        setStatus(undefined);
+        setMessages([]);
+        setConversationAttempt((attempt) => attempt + 1);
       });
     };
     const handleDisconnect = () => logRealtime("socket disconnected", { publicToken: token });
@@ -136,10 +189,17 @@ export function LiveChat() {
       );
       setDraft("");
     } catch (sendError) {
-      if (sendError instanceof ChatApiError && (sendError.status === 409 || sendError.status === 410)) {
+      if (isAuthorizationError(sendError)) {
+        window.sessionStorage.removeItem(TOKEN_KEY);
+        setToken(undefined);
+        setStatus(undefined);
+        setMessages([]);
+        setConversationAttempt((attempt) => attempt + 1);
+      } else if (sendError instanceof ChatApiError && (sendError.status === 409 || sendError.status === 410)) {
         setStatus(sendError.status === 410 ? "EXPIRED" : "CLOSED");
+      } else {
+        setError(getErrorMessage(sendError));
       }
-      setError(getErrorMessage(sendError));
     } finally {
       setIsSending(false);
     }

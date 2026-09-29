@@ -36,6 +36,10 @@ const getApiUrl = () => {
   return apiUrl;
 };
 
+const logRequestDiagnostics = (details: Record<string, unknown>) => {
+  if (process.env.NODE_ENV !== "production") console.debug("[LiveChat] REST request", details);
+};
+
 const getRecord = (value: unknown): ApiRecord =>
   value && typeof value === "object" ? (value as ApiRecord) : {};
 
@@ -76,13 +80,22 @@ const parseResponse = async (response: Response) => {
 
 const request = async (path: string, init?: RequestInit) => {
   try {
-    const response = await fetch(`${getApiUrl()}${path}`, {
+    const apiUrl = getApiUrl();
+    const credentialsMode = "include" as RequestCredentials;
+    const response = await fetch(`${apiUrl}${path}`, {
       ...init,
-      credentials: "include",
+      credentials: credentialsMode,
       headers: {
         ...(init?.body ? { "Content-Type": "application/json" } : {}),
         ...init?.headers,
       },
+    });
+    logRequestDiagnostics({
+      apiOrigin: new URL(apiUrl).origin,
+      path,
+      credentialsMode,
+      status: response.status,
+      browserVisibleCookieExists: typeof document !== "undefined" && document.cookie.length > 0,
     });
     return parseResponse(response);
   } catch (error) {
