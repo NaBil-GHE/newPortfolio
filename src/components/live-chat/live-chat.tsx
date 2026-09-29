@@ -36,6 +36,7 @@ export function LiveChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const recoveryAttemptsRef = useRef(0);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -72,6 +73,7 @@ export function LiveChat() {
           conversation = await createConversation();
         }
         if (cancelled) return;
+        recoveryAttemptsRef.current = 0;
         window.sessionStorage.setItem(TOKEN_KEY, conversation.publicToken);
         setToken(conversation.publicToken);
         setStatus(conversation.status);
@@ -84,6 +86,12 @@ export function LiveChat() {
         if (!cancelled) setMessages(history);
       } catch (loadError) {
         if (!cancelled && isAuthorizationError(loadError)) {
+          if (recoveryAttemptsRef.current >= 1) {
+            setError("Your chat session is no longer valid. Please refresh the page and try again.");
+            return;
+          }
+
+          recoveryAttemptsRef.current += 1;
           window.sessionStorage.removeItem(TOKEN_KEY);
           setToken(undefined);
           setStatus(undefined);
@@ -144,6 +152,13 @@ export function LiveChat() {
           status: joinRejected ? "rejected" : ackStatus || "accepted",
         });
         if (!joinRejected) return;
+        if (recoveryAttemptsRef.current >= 1) {
+          setError("Your chat session is no longer valid. Please refresh the page and try again.");
+          socket.disconnect();
+          return;
+        }
+
+        recoveryAttemptsRef.current += 1;
         socket.disconnect();
         window.sessionStorage.removeItem(TOKEN_KEY);
         setToken(undefined);
@@ -190,6 +205,12 @@ export function LiveChat() {
       setDraft("");
     } catch (sendError) {
       if (isAuthorizationError(sendError)) {
+        if (recoveryAttemptsRef.current >= 1) {
+          setError("Your chat session is no longer valid. Please refresh the page and try again.");
+          return;
+        }
+
+        recoveryAttemptsRef.current += 1;
         window.sessionStorage.removeItem(TOKEN_KEY);
         setToken(undefined);
         setStatus(undefined);
