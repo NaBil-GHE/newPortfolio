@@ -29,11 +29,7 @@ export class ChatApiError extends Error {
 }
 
 const getApiUrl = () => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-  if (!apiUrl) {
-    throw new ChatApiError("Chat service is not configured.", 0, "CONFIGURATION_ERROR");
-  }
-  return apiUrl;
+  return (process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:3000");
 };
 
 const logRequestDiagnostics = (details: Record<string, unknown>) => {

@@ -122,7 +122,10 @@ export function LiveChat() {
     });
     const handleMessage = (payload: unknown) => {
       const message = normalizeMessage(payload);
-      logRealtime("message:new received", { messageId: message.id, publicToken: token });
+      console.debug("[LiveChat] message:new received", {
+        id: message.id,
+        senderType: message.author,
+      });
       if (!message.content || !message.id) return;
       setMessages((current) =>
         current.some((existing) => existing.id === message.id) ? current : [...current, message]
