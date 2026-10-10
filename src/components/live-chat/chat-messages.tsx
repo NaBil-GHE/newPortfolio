@@ -3,6 +3,7 @@ import type { ChatMessage } from "./chat-api";
 type ChatMessagesProps = {
   messages: ChatMessage[];
   isLoading: boolean;
+  showWelcome: boolean;
 };
 
 const getAuthorLabel = (author: ChatMessage["author"]) => {
@@ -12,12 +13,12 @@ const getAuthorLabel = (author: ChatMessage["author"]) => {
   return "You";
 };
 
-export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
+export function ChatMessages({ messages, isLoading, showWelcome }: ChatMessagesProps) {
   if (isLoading) {
     return <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">Loading messages...</div>;
   }
 
-  if (!messages.length) {
+  if (!messages.length && showWelcome) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
         <p className="text-sm font-medium">Start a conversation</p>
@@ -25,6 +26,8 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
       </div>
     );
   }
+
+  if (!messages.length) return <div className="flex-1" aria-live="polite" />;
 
   return (
     <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4" aria-live="polite">

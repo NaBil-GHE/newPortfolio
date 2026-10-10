@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ChatMessage, ConversationStatus } from "./chat-api";
 import { ChatInput } from "./chat-input";
@@ -11,12 +11,14 @@ type ChatWindowProps = {
   error?: string;
   isLoading: boolean;
   isSending: boolean;
+  showWelcome: boolean;
   onDraftChange: (value: string) => void;
   onSend: () => void;
+  onStart: () => void;
   onClose: () => void;
 };
 
-export function ChatWindow({ messages, draft, status, error, isLoading, isSending, onDraftChange, onSend, onClose }: ChatWindowProps) {
+export function ChatWindow({ messages, draft, status, error, isLoading, isSending, showWelcome, onDraftChange, onSend, onStart, onClose }: ChatWindowProps) {
   const isClosed = status === "CLOSED" || status === "EXPIRED";
   const statusMessage = status === "EXPIRED" ? "This conversation has expired." : "This conversation is closed.";
 
@@ -32,7 +34,20 @@ export function ChatWindow({ messages, draft, status, error, isLoading, isSendin
         </Button>
       </header>
       {error && <p className="border-b bg-destructive/10 px-4 py-2 text-xs text-destructive">{error}</p>}
-      <ChatMessages messages={messages} isLoading={isLoading} />
+      <ChatMessages messages={messages} isLoading={isLoading} showWelcome={showWelcome} />
+      {showWelcome && !isLoading && (
+        <div className="border-t px-4 py-3">
+          <Button type="button" className="w-full" onClick={onStart} disabled={isSending}>
+            Start a conversation
+          </Button>
+        </div>
+      )}
+      {showWelcome && isLoading && (
+        <div className="flex items-center justify-center gap-2 border-t px-4 py-3 text-xs text-muted-foreground">
+          <Loader2 className="size-3.5 animate-spin" />
+          Starting conversation...
+        </div>
+      )}
       {isClosed && <p className="border-t bg-muted/50 px-4 py-3 text-center text-xs text-muted-foreground">{statusMessage}</p>}
       <ChatInput value={draft} disabled={isClosed || isLoading || !status} isSending={isSending} onChange={onDraftChange} onSend={onSend} />
     </section>

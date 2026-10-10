@@ -27,6 +27,7 @@ const getErrorMessage = (error: unknown) => {
 
 export function LiveChat() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isStarted, setIsStarted] = useState(false);
   const [conversationAttempt, setConversationAttempt] = useState(0);
   const [token, setToken] = useState<string>();
   const [status, setStatus] = useState<ConversationStatus>();
@@ -37,9 +38,10 @@ export function LiveChat() {
   const [isSending, setIsSending] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const recoveryAttemptsRef = useRef(0);
+  const startInFlightRef = useRef(false);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !isStarted) return;
     const previousToken = window.sessionStorage.getItem(TOKEN_KEY);
     let cancelled = false;
 
@@ -88,6 +90,8 @@ export function LiveChat() {
         if (!cancelled && isAuthorizationError(loadError)) {
           if (recoveryAttemptsRef.current >= 1) {
             setError("Your chat session is no longer valid. Please refresh the page and try again.");
+            setIsStarted(false);
+            startInFlightRef.current = false;
             return;
           }
 
@@ -99,6 +103,8 @@ export function LiveChat() {
           setConversationAttempt((attempt) => attempt + 1);
         } else if (!cancelled) {
           setError(getErrorMessage(loadError));
+          setIsStarted(false);
+          startInFlightRef.current = false;
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -109,11 +115,11 @@ export function LiveChat() {
     return () => {
       cancelled = true;
     };
-  }, [conversationAttempt, isOpen]);
+  }, [conversationAttempt, isOpen, isStarted]);
 
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-    if (!isOpen || !token || isLoading || !apiUrl || status === "CLOSED" || status === "EXPIRED") return;
+    if (!isOpen || !isStarted || !token || isLoading || !apiUrl || status === "CLOSED" || status === "EXPIRED") return;
 
     const socket = io(apiUrl, {
       autoConnect: false,
@@ -183,7 +189,7 @@ export function LiveChat() {
       socket.off("message:new", handleMessage);
       socket.disconnect();
     };
-  }, [isOpen, isLoading, status, token]);
+  }, [isOpen, isLoading, isStarted, status, token]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -229,12 +235,36 @@ export function LiveChat() {
     }
   };
 
+  const handleStart = () => {
+    if (startInFlightRef.current || isStarted) return;
+    startInFlightRef.current = true;
+    setError(undefined);
+    setIsStarted(true);
+    setConversationAttempt((attempt) => attempt + 1);
+  };
+
+  const handleToggle = () => {
+    if (isOpen) {
+      setIsOpen(false);
+      return;
+    }
+
+    setToken(undefined);
+    setStatus(undefined);
+    setMessages([]);
+    setDraft("");
+    setError(undefined);
+    setIsStarted(false);
+    startInFlightRef.current = false;
+    setIsOpen(true);
+  };
+
   return (
     <>
       {isOpen && (
-        <ChatWindow messages={messages} draft={draft} status={status} error={error} isLoading={isLoading} isSending={isSending} onDraftChange={setDraft} onSend={handleSend} onClose={() => setIsOpen(false)} />
+        <ChatWindow messages={messages} draft={draft} status={status} error={error} isLoading={isLoading} isSending={isSending} showWelcome={!isStarted} onDraftChange={setDraft} onSend={handleSend} onStart={handleStart} onClose={() => setIsOpen(false)} />
       )}
-      <Button type="button" size="icon" className="fixed bottom-20 right-4 z-40 size-12 shadow-lg sm:bottom-6 sm:right-6" onClick={() => setIsOpen((open) => !open)} aria-label={isOpen ? "Close live chat" : "Open live chat"} aria-expanded={isOpen}>
+      <Button type="button" size="icon" className="fixed bottom-20 right-4 z-40 size-12 shadow-lg sm:bottom-6 sm:right-6" onClick={handleToggle} aria-label={isOpen ? "Close live chat" : "Open live chat"} aria-expanded={isOpen}>
         {isOpen ? <X className="size-5" /> : <MessageCircle className="size-5" />}
       </Button>
     </>
