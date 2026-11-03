@@ -26,6 +26,7 @@ function ProjectImage({ src, alt }: { src: string; alt: string }) {
 }
 
 interface Props {
+  id: string;
   title: string;
   href?: string;
   description: string;
@@ -33,6 +34,7 @@ interface Props {
   tags: readonly string[];
   link?: string;
   image?: string;
+  images?: readonly string[];
   video?: string;
   links?: readonly {
     icon: React.ReactNode;
@@ -43,6 +45,7 @@ interface Props {
 }
 
 export function ProjectCard({
+  id,
   title,
   href,
   description,
@@ -50,6 +53,7 @@ export function ProjectCard({
   tags,
   link,
   image,
+  images,
   video,
   links,
   className,
@@ -77,8 +81,8 @@ export function ProjectCard({
               playsInline
               className="w-full h-48 object-cover"
             />
-          ) : image ? (
-            <ProjectImage src={image} alt={title} />
+          ) : images?.[0] || image ? (
+            <ProjectImage src={images?.[0] || image || ""} alt={title} />
           ) : (
             <div className="w-full h-48 bg-muted" />
           )}
@@ -124,6 +128,13 @@ export function ProjectCard({
         <div className="text-xs flex-1 prose max-w-full text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
           <Markdown>{description}</Markdown>
         </div>
+        <Link
+          href={`/projects/${id}`}
+          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          Project details
+          <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+        </Link>
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-auto">
             {tags.map((tag) => (

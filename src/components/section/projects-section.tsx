@@ -4,7 +4,7 @@ import { Icons } from "@/components/icons";
 import type { ReactNode } from "react";
 
 const BLUR_FADE_DELAY = 0.04;
-const PROJECTS_API_URL = "https://apis.nabilll.tech/api/pprojects/";
+const PROJECTS_API_URL = "https://apis.nabilll.tech/api/portfolio/public/";
 
 type ApiProjectLink = {
     type: string;
@@ -13,7 +13,7 @@ type ApiProjectLink = {
 };
 
 type ApiProject = {
-    _id: string;
+    id: string;
     title: string;
     href: string;
     dates: string;
@@ -21,6 +21,7 @@ type ApiProject = {
     description: string;
     technologies: string[];
     links: ApiProjectLink[];
+    images: string[];
     image?: string;
     video?: string;
 };
@@ -107,19 +108,21 @@ export default async function ProjectsSection() {
                     </p>
                 ) : (
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-w-200 mx-auto auto-rows-fr">
-                        {projects.map((project, id) => (
+                        {projects.map((project, index) => (
                             <BlurFade
-                                key={project._id}
-                                delay={BLUR_FADE_DELAY * 12 + id * 0.05}
+                                key={project.id}
+                                delay={BLUR_FADE_DELAY * 12 + index * 0.05}
                                 className="h-full"
                             >
                                 <ProjectCard
+                                    id={project.id}
                                     href={project.href}
                                     title={project.title}
                                     description={project.description}
                                     dates={project.dates}
                                     tags={project.technologies}
                                     image={project.image}
+                                    images={project.images}
                                     video={project.video}
                                     links={project.links.map((link) => ({
                                         type: link.type,
