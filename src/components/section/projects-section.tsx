@@ -4,7 +4,7 @@ import { Icons } from "@/components/icons";
 import type { ReactNode } from "react";
 
 const BLUR_FADE_DELAY = 0.04;
-const PROJECTS_API_URL = "https://apis.nabilll.tech/api/portfolio/public/";
+const PROJECTS_API_URL = "https://apim.nabilll.tech/api/portfolio/public/";
 
 type ApiProjectLink = {
     type: string;

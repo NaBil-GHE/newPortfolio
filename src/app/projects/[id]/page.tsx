@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import Markdown from "react-markdown";
 
-const PROJECTS_API_URL = "https://apis.nabilll.tech/api/portfolio";
+const PROJECTS_API_URL = "https://apim.nabilll.tech/api/portfolio";
 
 type Project = {
     id: string;
