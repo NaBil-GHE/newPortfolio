@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 const PAGE_SIZE = 5;
 const BLUR_FADE_DELAY = 0.04;
-const BLOG_API_URL = "https://apis.nabilll.tech/api/blog/public";
+const BLOG_API_URL ="https://apim.nabilll.tech/api/blog/public";
 
 type BlogPost = {
   slug: string;
