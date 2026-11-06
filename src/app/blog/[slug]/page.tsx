@@ -1,26 +1,36 @@
-import { allPosts } from "content-collections";
 import { formatDate } from "@/lib/utils";
 import { DATA } from "@/data/resume";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { MDXContent } from "@content-collections/mdx/react";
-import { mdxComponents } from "@/mdx-components";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-function getSortedPosts() {
-  return [...allPosts].sort((a, b) => {
-    if (new Date(a.publishedAt) > new Date(b.publishedAt)) {
-      return -1;
-    }
-    return 1;
-  });
+const BLOG_API_URL = "https://apis.nabilll.tech/api/blog/public";
+
+type BlogPost = {
+  slug: string;
+  title: string;
+  publishedAt: string;
+  updatedAt: string;
+  summary: string;
+  image: string;
+  content: string;
+};
+
+async function getPosts(): Promise<BlogPost[]> {
+  const response = await fetch(BLOG_API_URL, { cache: "no-store" });
+  if (!response.ok) return [];
+  const result = (await response.json()) as { success: boolean; data: BlogPost[] };
+  return result.success && Array.isArray(result.data) ? result.data : [];
 }
 
-export async function generateStaticParams() {
-  return allPosts.map((post) => ({
-    slug: post._meta.path.replace(/\.mdx$/, ""),
-  }));
+async function getPost(slug: string): Promise<BlogPost | null> {
+  const response = await fetch(`${BLOG_API_URL}/${encodeURIComponent(slug)}`, { cache: "no-store" });
+  if (!response.ok) return null;
+  const result = (await response.json()) as { success: boolean; data: BlogPost };
+  return result.success ? result.data : null;
 }
 
 export async function generateMetadata({
@@ -31,18 +41,13 @@ export async function generateMetadata({
   }>;
 }): Promise<Metadata | undefined> {
   const { slug } = await params;
-  const post = allPosts.find((p) => p._meta.path.replace(/\.mdx$/, "") === slug);
+  const post = await getPost(slug);
 
   if (!post) {
     return undefined;
   }
 
-  let {
-    title,
-    publishedAt: publishedTime,
-    summary: description,
-    image,
-  } = post;
+  const { title, publishedAt: publishedTime, summary: description, image } = post;
 
   return {
     title,
@@ -80,11 +85,9 @@ export default async function Blog({
   }>;
 }) {
   const { slug } = await params;
-  const sortedPosts = getSortedPosts();
-  const currentIndex = sortedPosts.findIndex(
-    (p) => p._meta.path.replace(/\.mdx$/, "") === slug
-  );
-  const post = sortedPosts[currentIndex];
+  const sortedPosts = await getPosts();
+  const post = await getPost(slug);
+  const currentIndex = sortedPosts.findIndex((item) => item.slug === slug);
 
   if (!post) {
     notFound();
@@ -93,18 +96,17 @@ export default async function Blog({
   const previousPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
   const nextPost = currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null;
 
-  const getSlug = (post: (typeof sortedPosts)[0]) =>
-    post._meta.path.replace(/\.mdx$/, "");
+  const getSlug = (item: BlogPost) => item.slug;
 
   const jsonLdContent = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
     datePublished: post.publishedAt,
-    dateModified: post.publishedAt,
+    dateModified: post.updatedAt,
     description: post.summary,
     image: post.image
-      ? `${DATA.url}${post.image}`
+      ? post.image
       : `${DATA.url}/blog/${slug}/opengraph-image`,
     url: `${DATA.url}/blog/${slug}`,
     author: {
@@ -148,7 +150,7 @@ export default async function Blog({
         />
       </div>
       <article className="prose max-w-full text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
-        <MDXContent code={post.mdx} components={mdxComponents} />
+        <Markdown remarkPlugins={[remarkGfm]}>{post.content}</Markdown>
       </article>
 
       <nav className="mt-12 pt-8 max-w-2xl">

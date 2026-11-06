@@ -1,7 +1,6 @@
- 
+
 
 import { ImageResponse } from "next/og";
-import { allPosts } from "content-collections";
 import { DATA } from "@/data/resume";
 
 export const runtime = "edge";
@@ -12,6 +11,7 @@ export const size = {
     height: 630,
 };
 export const contentType = "image/png";
+const BLOG_API_URL = "https://apis.nabilll.tech/api/blog/public";
 
 const getFontData = async () => {
     try {
@@ -129,7 +129,13 @@ export default async function Image({
     try {
         const fontData = await getFontData();
         const { slug } = await params;
-        const post = allPosts.find((p) => p._meta.path.replace(/\.mdx$/, "") === slug);
+        const response = await fetch(`${BLOG_API_URL}/${encodeURIComponent(slug)}`, {
+            cache: "no-store",
+        });
+        const result = response.ok
+            ? (await response.json()) as { success: boolean; data: { title: string; summary: string; publishedAt: string } }
+            : null;
+        const post = result?.success ? result.data : null;
         const imageUrl = DATA.avatarUrl
             ? new URL(DATA.avatarUrl, DATA.url).toString()
             : undefined;

@@ -1,5 +1,4 @@
 import BlurFade from "@/components/magicui/blur-fade";
-import { allPosts } from "content-collections";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { paginate, normalizePage } from "@/lib/pagination";
@@ -21,6 +20,25 @@ export const metadata: Metadata = {
 
 const PAGE_SIZE = 5;
 const BLUR_FADE_DELAY = 0.04;
+const BLOG_API_URL = "https://apis.nabilll.tech/api/blog/public";
+
+type BlogPost = {
+  slug: string;
+  title: string;
+  publishedAt: string;
+  summary: string;
+};
+
+async function getPosts(): Promise<BlogPost[]> {
+  try {
+    const response = await fetch(BLOG_API_URL, { cache: "no-store" });
+    if (!response.ok) return [];
+    const result = (await response.json()) as { success: boolean; data: BlogPost[] };
+    return result.success && Array.isArray(result.data) ? result.data : [];
+  } catch {
+    return [];
+  }
+}
 
 export default async function BlogPage({
   searchParams,
@@ -29,13 +47,7 @@ export default async function BlogPage({
 }) {
   const { page: pageParam } = await searchParams;
 
-  const posts = allPosts;
-  const sortedPosts = [...posts].sort((a, b) => {
-    if (new Date(a.publishedAt) > new Date(b.publishedAt)) {
-      return -1;
-    }
-    return 1;
-  });
+  const sortedPosts = await getPosts();
 
   const totalPages = Math.ceil(sortedPosts.length / PAGE_SIZE);
   const currentPage = normalizePage(pageParam, totalPages);
@@ -58,13 +70,12 @@ export default async function BlogPage({
           <BlurFade delay={BLUR_FADE_DELAY * 2}>
             <div className="flex flex-col gap-5">
               {paginatedPosts.map((post, id) => {
-                const slug = post._meta.path.replace(/\.mdx$/, "");
                 const indexNumber = (pagination.page - 1) * PAGE_SIZE + id + 1;
                 return (
-                  <BlurFade delay={BLUR_FADE_DELAY * 3 + id * 0.05} key={slug}>
+                  <BlurFade delay={BLUR_FADE_DELAY * 3 + id * 0.05} key={post.slug}>
                     <Link
                       className="flex items-start gap-x-2 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      href={`/blog/${slug}`}
+                      href={`/blog/${post.slug}`}
                     >
                       <span className="text-xs font-mono tabular-nums font-medium mt-[5px]">
                         {String(indexNumber).padStart(2, "0")}.
