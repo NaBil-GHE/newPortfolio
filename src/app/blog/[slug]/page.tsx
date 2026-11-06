@@ -7,7 +7,8 @@ import remarkGfm from "remark-gfm";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const BLOG_API_URL = "https://apis.nabilll.tech/api/blog/public";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://apim.nabilll.tech/";
+const BLOG_API_URL = `${apiUrl}api/blog/public`;
 
 type BlogPost = {
   slug: string;

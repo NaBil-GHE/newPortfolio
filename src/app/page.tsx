@@ -10,7 +10,7 @@ import ProjectsSection from "@/components/section/projects-section";
 import { ArrowUpRight } from "lucide-react";
 import { Suspense } from "react";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nabilll.tech";
 
 const BLUR_FADE_DELAY = 0.04;
 

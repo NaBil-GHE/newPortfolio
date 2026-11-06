@@ -11,8 +11,9 @@ export const size = {
     height: 630,
 };
 export const contentType = "image/png";
-const BLOG_API_URL = "https://apis.nabilll.tech/api/blog/public";
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://apim.nabilll.tech/";
+const BLOG_API_URL = `${apiUrl}api/blog/public`;
+    
 const getFontData = async () => {
     try {
         const [cabinetGrotesk, clashDisplay] = await Promise.all([

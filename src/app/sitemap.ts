@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nabill.tech";
-const BLOG_API_URL = "https://apis.nabilll.tech/api/blog/public";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://apim.nabilll.tech/";
+const BLOG_API_URL = `${apiUrl}api/blog/public`;
+
 // TODO: Replace NEXT_PUBLIC_SITE_URL with your real production domain.
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
